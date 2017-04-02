@@ -1,0 +1,575 @@
+package hmm;
+
+import java.io.*;
+import java.util.Scanner;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
+public class HMMSequences {
+	
+	// HMM Parameters
+	
+	static int numStates = 18;				//N--> number of states = 18
+	static int sigmaSize = 4;				//M--> number of observation symbols = 4 {A,C,G,T}
+	static int T =9;						//T--> length of the observation sequence
+	static int row=0;
+	
+	private static double[][] emissionProb =  new double[sigmaSize][numStates];			//B matrix
+	private static double[][] transitionProb = new double[numStates][numStates];		//A matrix
+	private static double[] initialProb = new double[numStates];						//Pi Matrix
+
+	static int [][] frequencyArrayAuthentic = new int[sigmaSize][T];
+	static int [][] frequencyArrayRandom = new int[sigmaSize][T];
+	
+	private static double[] probabilities = new double[1679];
+	private static double[] backward_probabilities = new double[1679];
+	
+	static char[][] cArray = new char [1679][9];
+	static int [] rows = new int[9];
+	static int steps = 10;
+	
+	
+	public static void main(String [] args){
+		
+		
+	//	setMatrixValues();
+		
+		Scanner scanner = new Scanner(HMMSequences.class.getResourceAsStream("Authentic_Training.txt"));
+		
+			for(int j=0; j < 479; j++){
+				while(scanner.hasNextLine()){	
+		 for(int i=0;i<9;i++)
+	        {
+	        	
+	        	if (cArray[j][i]=='A')
+	        		
+	        				rows[i]=0;
+	        	       	
+	        	if (cArray[j][i]=='C')
+	        		
+	        				rows[i]=1;
+	        		
+	        	if (cArray[j][i]=='G')
+	        		
+	        				rows[i]=2;
+	        			
+	        	
+	        	if (cArray[j][i]=='T')
+	        		
+	        				rows[i]=3;
+	            		    	      
+	        		
+	        }
+		}
+		 
+		 for(int z=0; z<9; z++)
+			 System.out.print(rows[z]); 
+	//	train(rows, steps);
+	//	print();
+		}
+			scanner.close();
+		System.out.println();
+				
+		Scanner scanner1 = new Scanner(HMMSequences.class.getResourceAsStream("Random_300.txt"));
+		for(int j=479; j < 1679; j++){
+			while(scanner1.hasNextLine()){	
+				for(int i=0;i<9;i++)
+				{
+        	
+        	if (cArray[j][i]=='A')
+        		
+        				rows[i]=0;
+        	       	
+        	if (cArray[j][i]=='C')
+        		
+        				rows[i]=1;
+        		
+        	if (cArray[j][i]=='G')
+        		
+        				rows[i]=2;
+        			
+        	
+        	if (cArray[j][i]=='T')
+        		
+        				rows[i]=3;
+            		    	      
+        		
+        }
+	}
+	 
+	 for(int z=0; z<9; z++)
+		 System.out.print(rows[z]); 
+	//train(rows, steps);
+	//print();
+	}
+	System.out.println();
+	scanner1.close();
+		
+		//computeAlpha();
+		//computeBeta();
+	}
+	
+	
+	public static void setMatrixValues(){
+		
+		//Initializing Transition probability matrix
+		for(int i=0; i<numStates; i++){
+			
+			for(int j=0; j<numStates; j++){
+				
+				if(j==i+1 && j!=9){
+					transitionProb[i][j]=0.99;
+				}
+				else if(j==i+10 || j==i-8){
+					transitionProb[i][j]=0.01;
+					
+				}
+				else
+				{
+					transitionProb[i][j]=0.00;
+				}
+			}
+		}
+		
+		
+		//Initializing Emission probability matrix
+		Scanner scanner = new Scanner(HMMSequences.class.getResourceAsStream("Authentic_Training.txt"));
+		for(int j=0; j < 479; j++){
+		String s = new String();
+		while(scanner.hasNextLine()){
+			
+			 s= scanner.nextLine();
+			
+			   for(int i=0;i<9;i++){
+			 //   System.out.println(s);
+			        cArray[j]= s.toCharArray();
+			        
+			     
+			        if (cArray[j][i]=='A')
+			        		
+			        				row=0;
+			        	       	
+			        	if (cArray[j][i]=='C')
+			        		
+			        				row=1;
+			        		
+			        	if (cArray[j][i]=='G')
+			        		
+			        				row=2;
+			        			
+			        	
+			        	if (cArray[j][i]=='T')
+			        		
+			        				row=3;
+			        		
+			        	frequencyArrayAuthentic[row][i]++;
+			   		}	    	      
+			        		
+			      }
+			
+				}  
+			        for(int l=0; l < sigmaSize; l++){
+			        /*	if(l==0)
+			        		System.out.print("A");
+			        	if(l==1)
+			        		System.out.print("C");
+			        	if(l==2)
+			        		System.out.print("G");
+			        	if(l==3)
+			        		System.out.print("T");
+			        	System.out.print("   ");
+			        	*/
+			        	
+			        	for(int k =0;k<9;k++){
+			        
+			        		DecimalFormat df = new DecimalFormat("#.###");
+
+			        	    df.setRoundingMode(RoundingMode.FLOOR);
+
+			        	    double result = new Double(df.format(frequencyArrayAuthentic[l][k]/475.00));
+			        	    emissionProb[l][k] = result;
+			        	    
+			        	}
+			   
+	    	}
+		
+		
+		// Initializing Emission probability matrix with random splice site states
+		
+		Scanner scanner1 = new Scanner(HMMSequences.class.getResourceAsStream("Random_300.txt"));
+		for(int j=479; j < 1679; j++){
+		
+		String s1 = new String();
+		while(scanner1.hasNextLine()){
+			 s1 = scanner1.nextLine();
+			   //   System.out.println(s);
+			        cArray[j] = s1.toCharArray();
+			        s1 = "";
+			        for(int i=0;i<9;i++)
+			        {
+			        	int row = 0;
+			        	if (cArray[j][i]=='A')
+			        		
+			        				row=0;
+			        	       	
+			        	if (cArray[j][i]=='C')
+			        		
+			        				row=1;
+			        		
+			        	if (cArray[j][i]=='G')
+			        		
+			        				row=2;
+			        			
+			        	
+			        	if (cArray[j][i]=='T')
+			        		
+			        				row=3;
+			        		
+			        	frequencyArrayRandom[row][i]++;
+		        		    	      
+			        		
+			        }
+			        
+		}
+			        
+			        for(int l=0; l<4;l++){
+			        /*	if(l==0)
+			        		System.out.print("A");
+			        	if(l==1)
+			        		System.out.print("C");
+			        	if(l==2)
+			        		System.out.print("G");
+			        	if(l==3)
+			        		System.out.print("T");
+			        	System.out.print("   ");
+			        	
+			        	*/
+			        	for(int k =0; k < sigmaSize; k++){
+			        
+			        		DecimalFormat df = new DecimalFormat("#.###");
+
+			        	    df.setRoundingMode(RoundingMode.FLOOR);
+
+			        	    double result = new Double(df.format(frequencyArrayRandom[l][k]/1200.00));
+			        	    
+			        	    for(int m=9; m < 18; m++){
+			        	    emissionProb[l][m] = result;
+			        	    }
+			        	}
+			        	
+			   
+	    	}
+		}
+		
+		//Initializing Initial Probability Matrix
+		
+		for(int i=0; i<18; i++){
+			if(i==0)
+				initialProb[i]=0.3;
+			else if(i==9)
+				initialProb[i]=0.7;
+			else
+				initialProb[i]=0.0;
+		}
+		
+		
+		//Printing A, B , Pi Matrix values
+		
+		System.out.println("Transition Probability Matrix:");
+	
+		for(int i=0; i<18; i++){
+			
+			for(int j=0; j<18; j++){
+				
+				System.out.print(transitionProb[i][j]);
+				System.out.print(" ");
+				
+			}
+			
+			System.out.println();
+		}
+		
+		System.out.println();
+		System.out.println("Emission Probability Matrix:");
+		
+		for(int l=0; l<4;l++){
+				if(l==0)
+	        		System.out.print("A");
+	        	if(l==1)
+	        		System.out.print("C");
+	        	if(l==2)
+	        		System.out.print("G");
+	        	if(l==3)
+	        		System.out.print("T");
+	        	System.out.print("   ");
+	        	
+	        	
+	        	for(int k =0;k<18;k++){
+	        	        		
+	        	 System.out.print(emissionProb[l][k]);
+	        	 System.out.print(" ");
+	        	}
+	        	System.out.println("");
+	        	    
+		}
+		
+		
+
+		System.out.println();
+		System.out.println("Initial Probability Matrix:");
+		for(int k =0;k<18;k++){
+    		
+       	 System.out.print(initialProb[k]);
+       	 System.out.print(" ");
+       	}
+       	System.out.println("");
+		//return;
+	}
+	
+
+
+	/** implementation of the Baum-Welch Algorithm for HMMs.
+    @param o the training set
+    @param steps the number of steps
+	 */
+	public static void train(int[] rows, int steps) {
+		int T = rows.length;
+
+		double[][] alphaValues;
+		double[][] betaValues;
+
+		double pi1[] = new double[numStates];
+		double a1[][] = new double[numStates][numStates];
+		double b1[][] = new double[numStates][sigmaSize];
+	
+		System.out.println("Print function");
+
+		for (int s = 0; s < steps; s++) {
+			/* calculation of Forward- und Backward Variables from the
+	 current model */
+
+			/*	  
+    fwd = forwardProc(o);
+    bwd = backwardProc(o);
+			 */
+
+			alphaValues = computeAlpha(rows);
+			betaValues = computeBeta(rows);
+
+			/* re-estimation of initial state probabilities */
+			for (int i = 0; i < numStates; i++)
+				pi1[i] = gamma(i, 0, rows, alphaValues, betaValues);
+
+			/* re-estimation of transition probabilities */ 
+			for (int i = 0; i < numStates; i++) {
+				for (int j = 0; j < numStates; j++) {
+					double num = 0;
+					double denom = 0;
+					for (int t = 0; t <= T - 1; t++) {
+						num += p(t, i, j, rows, alphaValues, betaValues);
+						denom += gamma(i, t, rows,  alphaValues, betaValues);
+					}
+					a1[i][j] = divide(num, denom);
+				}
+			}
+
+			/* re-estimation of emission probabilities */
+			for (int i = 0; i < numStates; i++) {
+				for (int k = 0; k < sigmaSize; k++) {
+					double num = 0;
+					double denom = 0;
+
+					for (int t = 0; t <= T - 1; t++) {
+						double g = gamma(i, t, rows, alphaValues, betaValues);
+						num += g * (k == rows[t] ? 1 : 0);
+						denom += g;
+					}
+					b1[i][k] = divide(num, denom);
+				}
+			}
+			initialProb = pi1;
+			transitionProb = a1;
+			emissionProb = b1;
+		}
+	}
+
+	//Computing the Alpha pass
+	/** calculation of Forward-Variables f(i,t) for state i at time
+t for output sequence O with the current HMM parameters
+@param o the output sequence O
+@return an array f(i,t) over states and times, containing
+        the Forward-variables. 
+	 */
+
+	public static double[][] computeAlpha(int[] rows)
+	{
+		//	 int[] ScaleFactor = new int[9];
+		double[][] alphaValues = new double[numStates][T];
+
+
+		//Initialization step
+		for(int i=0; i<numStates; i++){
+
+			alphaValues[i][0]=initialProb[i]*emissionProb[rows[0]][i];
+
+		}
+
+
+		//Induction step
+		for(int t=0; t<=T-2; t++) {
+			for (int j = 0; j < numStates; j++) {
+				alphaValues[j][t+1] = 0;
+
+				for (int i = 0; i < numStates; i++)
+					alphaValues[j][t+1] += (alphaValues[i][t] * transitionProb[i][j]);
+				alphaValues[j][t+1] *= emissionProb[rows[t+1]][j];
+			}
+		}
+
+		//Printing out the Alpha Values
+
+		System.out.println("Alpha Values:\n");
+		for(int h=0;h<18;h++)
+		{
+			for(int m=0; m<9; m++){
+
+				System.out.print(alphaValues[h][m] + " ");
+				probabilities[0]+=alphaValues[h][m];
+
+			}
+			System.out.println();
+		}
+
+		System.out.println("Probability of sequence 1 =" + probabilities[0]);
+
+		return alphaValues;
+	}
+
+
+
+	/** calculation of  Backward-Variables b(i,t) for state i at time
+    t for output sequence O with the current HMM parameters
+    @param o the output sequence O
+    @return an array b(i,t) over states and times, containing
+            the Backward-Variables. 
+	 */
+
+	public static double[][] computeBeta(int[] rows)
+	{
+		// int[] ScaleFactor = new int[9];
+		double[][] betaValues = new double[numStates][T];
+
+		//Initialization step
+		for(int i=0; i < numStates; i++)
+			betaValues[i][T-1]=1;
+
+
+		//Induction step
+		for (int t = T - 2; t >= 0; t--) {
+			for (int i = 0; i < numStates; i++) {
+				betaValues[i][t] = 0;
+
+				for(int j=0; j<numStates; j++)
+					betaValues[i][t] += (betaValues[j][t+1] * transitionProb[i][j] * emissionProb[rows[t+1]][j]);
+
+			}
+		}
+
+
+		//Printing Beta Values  	
+		System.out.println("Beta Values:\n");
+		for(int h=0;h<18;h++)
+		{
+			for(int m=0; m<9; m++){
+
+				System.out.print(betaValues[h][m] + " ");
+				backward_probabilities[0]+=betaValues[h][m];
+
+			}
+			System.out.println();
+		}
+
+		System.out.println("Probability of sequence 1 =" + probabilities[0]);
+
+		return betaValues;
+
+	}
+
+
+	/** calculation of probability P(X_t = s_i, X_t+1 = s_j | O, m).
+    @param t time t
+    @param i the number of state s_i
+    @param j the number of state s_j
+    @param o an output sequence o
+    @param fwd the Forward-Variables for o
+    @param bwd the Backward-Variables for o
+    @return P
+	 */
+	public static double p(int t, int i, int j, int[] rows , double[][] alphaValues, double[][] betaValues) {
+		double num;
+		if (t == T - 1)
+			num = alphaValues[i][t] * transitionProb[i][j];
+		else
+			num = alphaValues[i][t] * transitionProb[i][j] * emissionProb[rows[t+1]][j] * betaValues[j][t+1];
+
+		double denom = 0;
+
+		for (int k = 0; k < numStates; k++)
+			denom += (alphaValues[k][t] * betaValues[k][t]);
+
+		return divide(num, denom);
+	}
+
+	/** computes gamma(i, t) */
+	public static double gamma(int i, int t, int[] rows, double[][] alphaValues, double[][] betaValues) {
+		double num = alphaValues[i][t] * betaValues[i][t];
+		double denom = 0;
+
+		for (int j = 0; j < numStates; j++)
+			denom += alphaValues[j][t] * betaValues[j][t];
+
+		return divide(num, denom);
+	}
+
+	/** prints all the parameters of an HMM */
+	public static void print() {
+		DecimalFormat fmt = new DecimalFormat();
+		fmt.setMinimumFractionDigits(5);
+		fmt.setMaximumFractionDigits(5);
+
+		for (int i = 0; i < numStates; i++)
+			System.out.println("pi(" + i + ") = " + fmt.format(initialProb[i]));
+		System.out.println();
+
+		for (int i = 0; i < numStates; i++) {
+			for (int j = 0; j < numStates; j++)
+				System.out.print("a(" + i + "," + j + ") = " + 
+						fmt.format(transitionProb[i][j]) + "  ");
+			System.out.println();
+		}
+
+		System.out.println();
+		for (int i = 0; i < numStates; i++) {
+			for (int k = 0; k < sigmaSize; k++)
+				System.out.print("b(" + i + "," + k + ") = " + 
+						fmt.format(emissionProb[i][k]) + "  ");
+			System.out.println();
+		}
+	}
+
+	/** divides two doubles. 0 / 0 = 0! */
+	public static double divide(double n, double d) {
+		if (n == 0)
+			return 0;
+		else
+			return n / d;
+	}
+
+
+}
+
+
+
+
+
