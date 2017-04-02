@@ -1,0 +1,1452 @@
+import java.io.*;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Scanner;
+
+public class ReadFile {
+	
+	static int [][] frequencyArray = new int[4][9];
+	static int [][] frequencyArray2 = new int[4][9];
+	static int [][] frequencyArray5 = new int[4][9];
+	static double [][] probabilityArray = new double[4][9];
+	static double [][] probabilityArray2 = new double[4][9];
+	static double [][] probabilityArray5 = new double[4][9];
+	static double [][] tempArray = new double[4][9];
+	static double [][] logOddsArray = new double[4][9];
+	
+	
+	//Cryptic splice site arrays
+	static int [][] frequencyArray3 = new int[4][9];
+	static int [][] frequencyArray4 = new int[4][9];
+	static int [][] frequencyArray6 = new int[4][9];
+	static double [][] probabilityArray3 = new double[4][9];
+	static double [][] probabilityArray4 = new double[4][9];
+	static double [][] probabilityArray6 = new double[4][9];
+	static double [][] tempArray2 = new double[4][9];
+	static double [][] logOddsArray2 = new double[4][9];
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+	training();	
+	testing();
+	}
+	
+	
+	public static void training(){
+		
+		for(int i=0; i<4; i++)
+		{
+			for(int j=0; j<9; j++){
+				// Initializing frequencyArray to 0.
+				frequencyArray[i][j]=0;
+			}
+		}
+		
+	//	Inputting strings line by line into s
+		
+		Scanner scanner = new Scanner(ReadFile.class.getResourceAsStream("Authentic_Unique.txt"));
+		String s = new String();
+		while(scanner.hasNextLine()){
+
+
+		        s = scanner.nextLine();
+		   //   System.out.println(s);
+		        char[] cArray = s.toCharArray();
+		        s = "";
+		        for(int i=0;i<9;i++)
+		        {
+		        	int row = 0,j;
+		        	if (cArray[i]=='A')
+		        		
+		        				row=0;
+		        	       	
+		        	if (cArray[i]=='C')
+		        		
+		        				row=1;
+		        		
+		        	if (cArray[i]=='G')
+		        		
+		        				row=2;
+		        			
+		        	
+		        	if (cArray[i]=='T')
+		        		
+		        				row=3;
+		        		
+		        	frequencyArray[row][i]++;
+	        		    	      
+		        		
+		        }
+		   
+    	}
+			
+		// Printing out the Frequency Matrix for Authentic Splice Sites
+		
+		System.out.println("Frequency Matrix: ");
+		  
+        for(int l=0; l<4;l++){
+        	if(l==0)
+        		System.out.print("A");
+        	if(l==1)
+        		System.out.print("C");
+        	if(l==2)
+        		System.out.print("G");
+        	if(l==3)
+        		System.out.print("T");
+        	System.out.print("   ");
+        	
+        	
+        	for(int k =0;k<9;k++){
+        		
+        	//	System.out.print(k+1);
+        	//	System.out.println();
+        	
+        		System.out.print(frequencyArray[l][k]+" ");
+        	
+        
+    		
+        	}
+        	System.out.println("\n");
+        }
+        
+    	// Probability Matrix is frequencyMatrix/Total no of sequences
+		System.out.println("Probability Matrix: ");
+		  
+        for(int l=0; l<4;l++){
+        	if(l==0)
+        		System.out.print("A");
+        	if(l==1)
+        		System.out.print("C");
+        	if(l==2)
+        		System.out.print("G");
+        	if(l==3)
+        		System.out.print("T");
+        	System.out.print("   ");
+        	
+        	
+        	for(int k =0;k<9;k++){
+        		
+        	//	System.out.print(k+1);
+        	//	System.out.println();
+        		
+        	/*	double val = frequencyArray[l][k]/2796.00;
+        		System.out.println(val);*/
+        		DecimalFormat df = new DecimalFormat("#.###");
+
+        	    df.setRoundingMode(RoundingMode.FLOOR);
+
+        	    double result = new Double(df.format(frequencyArray[l][k]/475.00));
+        	    probabilityArray[l][k] = result;
+        	    
+        		/*NumberFormat nf = NumberFormat.getInstance();
+        		nf.setMaximumFractionDigits(2);            
+        		nf.setGroupingUsed(false);
+        		
+        		probabilityArray[l][k] = frequencyArray[l][k]/2796.00;*/
+        		System.out.print(probabilityArray[l][k]+" ");
+   	  		
+        	}
+        	System.out.println("\n");
+        	
+        	
+        
+        //	probabilityArray[l][k] = result;
+
+        }
+        
+    	System.out.println("Laplace Pseudo-count probability matrix:");
+//    	System.out.println("Test");
+    	Scanner scanner1 = new Scanner(ReadFile.class.getResourceAsStream("Authentic_Training.txt"));
+
+    		String s1 = new String();
+
+    		while(scanner1.hasNextLine()){
+
+
+    		        s1 = scanner1.nextLine();
+    		   //     System.out.println(s);
+    		        char[] cArray2 = s1.toCharArray();
+    		        s1 = "";
+    		        for(int i=0;i<9;i++)
+    		        {
+    		        	int row = 0,j;
+    		        	if (cArray2[i]=='A')
+    		        		row=0;
+    		        	
+    		        	if (cArray2[i]=='C')
+    		        		row=1;
+    		 
+    		        	if (cArray2[i]=='G')
+    		        		row=2;
+    		        				
+    		        	if (cArray2[i]=='T')
+    		        		row=3;
+    		        		
+    		        	frequencyArray2[row][i]++;		
+    		        }
+    		   
+        	}
+    				
+    		System.out.println("Pseudocount Frequency Matrix: ");
+    		  
+            for(int l=0; l<4;l++){
+            	if(l==0)
+            		System.out.print("A");
+            	if(l==1)
+            		System.out.print("C");
+            	if(l==2)
+            		System.out.print("G");
+            	if(l==3)
+            		System.out.print("T");
+            	System.out.print("   ");
+            	
+            	
+            	for(int k =0;k<9;k++){
+            		
+            	//	System.out.print(k+1);
+            	//	System.out.println();
+            	
+            		System.out.print(frequencyArray2[l][k]+" ");
+            	
+            		
+        		
+            	}
+            	System.out.println("\n");
+            }
+            
+        	
+    //		System.out.println("Pseudocount Probability Matrix: ");
+    		System.out.println("Position Weight Matrix:");
+            for(int l=0; l<4;l++){
+            	if(l==0)
+            		System.out.print("A");
+            	if(l==1)
+            		System.out.print("C");
+            	if(l==2)
+            		System.out.print("G");
+            	if(l==3)
+            		System.out.print("T");
+            	System.out.print("   ");
+            	
+            	
+            	for(int k =0;k<9;k++){
+            		
+            	//	System.out.print(k+1);
+            	//	System.out.println();
+            		
+            	/*	double val = frequencyArray[l][k]/2796.00;
+            		System.out.println(val);*/
+            		DecimalFormat df = new DecimalFormat("#.###");
+
+            	    df.setRoundingMode(RoundingMode.FLOOR);
+
+            	    double result = new Double(df.format(frequencyArray2[l][k]/479.00));
+            	    probabilityArray2[l][k] = result;
+            	    
+            		/*NumberFormat nf = NumberFormat.getInstance();
+            		nf.setMaximumFractionDigits(2);            
+            		nf.setGroupingUsed(false);
+            		
+            		probabilityArray[l][k] = frequencyArray[l][k]/2796.00;*/
+            	  
+            		System.out.print(probabilityArray2[l][k]+" ");
+       	      		
+            	}
+            	System.out.println("\n");
+            }
+            
+            
+            System.out.println("Background probability distribution:");
+            System.out.println("A: 0.28"); 
+            System.out.println("C: 0.22"); 
+            System.out.println("G: 0.22"); 
+            System.out.println("T: 0.28"); 
+            System.out.println("\n");
+            System.out.println("Temporary Matrix: ");
+                    
+                   
+            
+            for(int i=0;i<4;i++){
+            	
+            	double background_probability;
+				if(i==0||i==3)
+            		 background_probability = 0.28;
+            	else
+            		 background_probability = 0.22; 
+            	
+            	for(int j=0; j<9; j++){
+            		            		
+            		DecimalFormat df = new DecimalFormat("#.###");
+
+            	    df.setRoundingMode(RoundingMode.FLOOR);
+
+            	    double result = new Double(df.format(probabilityArray2[i][j]/background_probability));
+            	    tempArray[i][j] = result;
+            		System.out.print(tempArray[i][j] + " ");
+            		
+            		DecimalFormat df2 = new DecimalFormat("#.###");
+            	    df2.setRoundingMode(RoundingMode.FLOOR);
+            	    double result2 = new Double(df.format(Math.log(tempArray[i][j])/Math.log(2)));
+            		logOddsArray[i][j] = result2;
+            		
+            	            		
+            	}
+            	System.out.println("\n");
+            }
+            
+            System.out.println("Log-odds Matrix: ");
+            for(int i=0; i<4; i++){
+            	
+            	if(i==0)
+            		System.out.print("A");
+            	if(i==1)
+            		System.out.print("C");
+            	if(i==2)
+            		System.out.print("G");
+            	if(i==3)
+            		System.out.print("T");
+            	System.out.print("   ");
+            	
+            	for(int j=0; j<9; j++){
+            		
+            		System.out.print(logOddsArray[i][j] + " ");
+            	}
+            	
+            	System.out.println("\n");
+            	
+            
+            }
+            
+            // Calculating scores for authentic splice sites
+            
+            Scanner scanner2 = new Scanner(ReadFile.class.getResourceAsStream("Authentic_Training.txt"));
+
+    		String s2 = new String();
+    		
+    		double sum = 0; 
+    		double avg;
+    		System.out.println("AUTHENTIC TRAINING DATASET SCORES:");
+    		System.out.println("\n");
+    		while(scanner2.hasNextLine()){
+
+
+    		        s2 = scanner2.nextLine();
+    		        char[] cArray = s2.toCharArray();
+    		        double result = 0;
+    		        double score = 0;
+    		        for(int i=0;i<9;i++)
+    		        {
+    		        	int row;
+    		        	if (cArray[i]=='A')
+    		        		row = 0;
+    		        	    		        	
+    		        	else if (cArray[i]=='C')
+    		        		row=1;
+    		        				    		        	
+    		        	else if (cArray[i]=='G')
+    		        		row=2;
+    		        			
+    		        	else
+    		        		row=3;
+    		        	
+    		        	   		        		
+    		        	score += logOddsArray[row][i];
+    		        	DecimalFormat df = new DecimalFormat("#.##");
+                	    df.setRoundingMode(RoundingMode.FLOOR);
+                	    result = new Double(df.format(score));
+    		        		
+    		        	}
+    		       	   		        
+    		        System.out.println(s2 + ": " + result);
+    		        sum += result;
+    		}
+    		
+    		avg = sum/479;
+    		System.out.println(avg);
+    		
+    		  		
+    	
+    		
+    		//CRYPTIC SPLICE SITES
+            System.out.println("\n");
+    		System.out.println("Cryptic Splice Sites: ");
+    		for(int i=0; i<4; i++)
+    		{
+    			for(int j=0; j<9; j++){
+    				frequencyArray3[i][j]=0;
+    			}
+    		}
+    		
+    	//	System.out.println("Test");
+    		Scanner scanner3 = new Scanner(ReadFile.class.getResourceAsStream("Cryptic_Unique.txt"));
+    		String s3 = new String();
+    		while(scanner3.hasNextLine()){
+
+
+    		        s3 = scanner3.nextLine();
+    		   //   System.out.println(s);
+    		        char[] cArray = s3.toCharArray();
+    		     //   s3 = "";
+    		        for(int i=0;i<9;i++)
+    		        {
+    		        	int row=0,j;
+    		        	if (cArray[i]=='A')
+    		        		row=0;
+    		     
+    		        	if (cArray[i]=='C')
+    		        		row=1;
+    		        				
+    		        	if (cArray[i]=='G')
+    		        		row=2;
+    		        			
+    		        	if (cArray[i]=='T')
+    		        		row=3;
+    		        	
+    		        	frequencyArray3[row][i]++;
+    		        				
+    		        		
+    		        }
+    		   
+        	}
+    				
+    		System.out.println("Frequency Matrix: ");
+    		  
+            for(int l=0; l<4;l++){
+            	if(l==0)
+            		System.out.print("A");
+            	if(l==1)
+            		System.out.print("C");
+            	if(l==2)
+            		System.out.print("G");
+            	if(l==3)
+            		System.out.print("T");
+            	System.out.print("   ");
+            	
+            	
+            	for(int k =0;k<9;k++){
+            		
+            	//	System.out.print(k+1);
+            	//	System.out.println();
+            	
+            		System.out.print(frequencyArray3[l][k]+" ");
+            	
+            		
+        		
+            	}
+            	System.out.println("\n");
+            }
+            
+        	
+    		System.out.println("Probability Matrix: ");
+    		  
+            for(int l=0; l<4;l++){
+            	if(l==0)
+            		System.out.print("A");
+            	if(l==1)
+            		System.out.print("C");
+            	if(l==2)
+            		System.out.print("G");
+            	if(l==3)
+            		System.out.print("T");
+            	System.out.print("   ");
+            	
+            	
+            	for(int k =0;k<9;k++){
+            		
+            	//	System.out.print(k+1);
+            	//	System.out.println();
+            		
+            	/*	double val = frequencyArray[l][k]/2796.00;
+            		System.out.println(val);*/
+            		DecimalFormat df = new DecimalFormat("#.###");
+
+            	    df.setRoundingMode(RoundingMode.FLOOR);
+
+            	    double result = new Double(df.format(frequencyArray3[l][k]/172.00));
+            	    probabilityArray3[l][k] = result;
+            	    
+            		/*NumberFormat nf = NumberFormat.getInstance();
+            		nf.setMaximumFractionDigits(2);            
+            		nf.setGroupingUsed(false);
+            		
+            		probabilityArray[l][k] = frequencyArray[l][k]/2796.00;*/
+            		System.out.print(probabilityArray3[l][k]+" ");
+       	
+      		
+            	}
+            	System.out.println("\n");
+            	
+            	
+            
+            //	probabilityArray[l][k] = result;
+
+            }
+            
+        	System.out.println("Laplace Pseudo-count probability matrix:");
+//        	System.out.println("Test");
+        	Scanner scanner4 = new Scanner(ReadFile.class.getResourceAsStream("Cryptic_Training.txt"));
+
+        		String s4 = new String();
+
+        		while(scanner4.hasNextLine()){
+
+
+        		        s4 = scanner4.nextLine();
+        		   //     System.out.println(s);
+        		        char[] cArray2 = s4.toCharArray();
+        		   //     s4 = "";
+        		        for(int i=0;i<9;i++)
+        		        {
+        		        	int row = 0,j;
+        		        	if (cArray2[i]=='A')
+        		        	        row=0;
+        		        				
+        		        				
+        		        	if (cArray2[i]=='C')
+        		        			row=1;
+        		        			
+        		        	
+        		        	if (cArray2[i]=='G')
+        		        			row=2;
+        		        				
+        		        	if (cArray2[i]=='T')
+        		        		    row=3;
+        		        	
+        		        	frequencyArray4[row][i]++;
+    		        		
+        		        			
+        		        		
+        		        }
+        		   
+            	}
+        				
+        		System.out.println("Pseudocount Frequency Matrix: ");
+        		  
+                for(int l=0; l<4;l++){
+                	if(l==0)
+                		System.out.print("A");
+                	if(l==1)
+                		System.out.print("C");
+                	if(l==2)
+                		System.out.print("G");
+                	if(l==3)
+                		System.out.print("T");
+                	System.out.print("   ");
+                	
+                	
+                	for(int k =0;k<9;k++){
+                		
+                	//	System.out.print(k+1);
+                	//	System.out.println();
+                	
+                		System.out.print(frequencyArray4[l][k]+" ");
+                	
+                		
+            		
+                	}
+                	System.out.println("\n");
+                }
+                
+            	
+        //		System.out.println("Pseudocount Probability Matrix: ");
+        		System.out.println("Position Weight Matrix:");
+                for(int l=0; l<4;l++){
+                	if(l==0)
+                		System.out.print("A");
+                	if(l==1)
+                		System.out.print("C");
+                	if(l==2)
+                		System.out.print("G");
+                	if(l==3)
+                		System.out.print("T");
+                	System.out.print("   ");
+                	
+                	
+                	for(int k =0;k<9;k++){
+                		
+                	//	System.out.print(k+1);
+                	//	System.out.println();
+                		
+                	/*	double val = frequencyArray[l][k]/2796.00;
+                		System.out.println(val);*/
+                		DecimalFormat df = new DecimalFormat("#.###");
+
+                	    df.setRoundingMode(RoundingMode.FLOOR);
+
+                	    double result = new Double(df.format(frequencyArray4[l][k]/176.00));
+                	    probabilityArray4[l][k] = result;
+                	    
+                		/*NumberFormat nf = NumberFormat.getInstance();
+                		nf.setMaximumFractionDigits(2);            
+                		nf.setGroupingUsed(false);
+                		
+                		probabilityArray[l][k] = frequencyArray[l][k]/2796.00;*/
+                	  
+                		System.out.print(probabilityArray4[l][k]+" ");
+           	      		
+                	}
+                	System.out.println("\n");
+                }
+                
+                
+                System.out.println("Background probability distribution:");
+                System.out.println("A: 0.28"); 
+                System.out.println("C: 0.22"); 
+                System.out.println("G: 0.22"); 
+                System.out.println("T: 0.28"); 
+                System.out.println("\n");
+                System.out.println("Temporary Matrix: ");
+                        
+                       
+                
+                for(int i=0;i<4;i++){
+                	
+                	double background_probability;
+    				if(i==0||i==3)
+                		 background_probability = 0.28;
+                	else
+                		 background_probability = 0.22; 
+                	
+                	for(int j=0; j<9; j++){
+                		            		
+                		DecimalFormat df = new DecimalFormat("#.###");
+
+                	    df.setRoundingMode(RoundingMode.FLOOR);
+
+                	    double result = new Double(df.format(probabilityArray4[i][j]/background_probability));
+                	    tempArray2[i][j] = result;
+                		System.out.print(tempArray2[i][j] + " ");
+                		
+                		DecimalFormat df2 = new DecimalFormat("#.###");
+                	    df2.setRoundingMode(RoundingMode.FLOOR);
+                	    double result2 = new Double(df.format(Math.log(tempArray2[i][j])/Math.log(2)));
+                		logOddsArray2[i][j] = result2;
+                		
+                	            		
+                	}
+                	System.out.println("\n");
+                }
+                
+                System.out.println("Log-odds Matrix: ");
+                for(int i=0; i<4; i++){
+                	
+                	if(i==0)
+                		System.out.print("A");
+                	if(i==1)
+                		System.out.print("C");
+                	if(i==2)
+                		System.out.print("G");
+                	if(i==3)
+                		System.out.print("T");
+                	System.out.print("   ");
+                	
+                	for(int j=0; j<9; j++){
+                		
+                		System.out.print(logOddsArray2[i][j] + " ");
+                	}
+                	
+                	System.out.println("\n");
+                	
+                
+                }
+                
+                
+                Scanner scanner5 = new Scanner(ReadFile.class.getResourceAsStream("Cryptic_Training.txt"));
+
+        		String s5 = new String();
+        		sum = 0;
+        		System.out.println("CRYPTIC TRAINING DATASET SCORES:");
+        		System.out.println("\n");
+        		while(scanner5.hasNextLine()){
+
+
+        		        s5 = scanner5.nextLine();
+        		        char[] cArray = s5.toCharArray();
+        		        double result = 0;
+        		        double score = 0;
+        		        
+        		        for(int i=0;i<9;i++)
+        		        {
+        		        	int row;
+        		        	if (cArray[i]=='A')
+        		        		row = 0;
+        		        	    		        	
+        		        	else if (cArray[i]=='C')
+        		        		row=1;
+        		        				    		        	
+        		        	else if (cArray[i]=='G')
+        		        		row=2;
+        		        			
+        		        	else
+        		        		row=3;
+        		        	
+        		        	   		        		
+        		        	score += logOddsArray2[row][i];
+        		        	DecimalFormat df = new DecimalFormat("#.##");
+                    	    df.setRoundingMode(RoundingMode.FLOOR);
+                    	    result = new Double(df.format(score));
+                    	 
+        		        		
+        		        	}
+        		       	   		        
+        		        System.out.println(s5 + ": " + result);
+        		        sum += result;
+        		      
+        		}
+        		
+        		 
+        		avg = sum/176;
+        		System.out.println(avg);
+        		
+	}
+	
+	
+	
+	
+	//TESTING with new data
+	
+		
+	
+	public static void testing(){
+		
+		for(int i=0; i<4; i++)
+		{
+			for(int j=0; j<9; j++){
+				// Initializing frequencyArray to 0.
+				frequencyArray5[i][j]=0;
+			}
+		}
+		
+	
+    	System.out.println("Laplace Pseudo-count probability matrix:");
+//    	System.out.println("Test");
+    	Scanner scanner1 = new Scanner(ReadFile.class.getResourceAsStream("Authentic_Test.txt"));
+
+    		String s1 = new String();
+
+    		while(scanner1.hasNextLine()){
+
+
+    		        s1 = scanner1.nextLine();
+    		   //     System.out.println(s);
+    		        char[] cArray2 = s1.toCharArray();
+    		        s1 = "";
+    		        for(int i=0;i<9;i++)
+    		        {
+    		        	int row = 0,j;
+    		        	if (cArray2[i]=='A')
+    		        		row=0;
+    		        	
+    		        	if (cArray2[i]=='C')
+    		        		row=1;
+    		 
+    		        	if (cArray2[i]=='G')
+    		        		row=2;
+    		        				
+    		        	if (cArray2[i]=='T')
+    		        		row=3;
+    		        		
+    		        	frequencyArray5[row][i]++;		
+    		        }
+    		   
+        	}
+    				
+    		System.out.println("Pseudocount Frequency Matrix: ");
+    		  
+            for(int l=0; l<4;l++){
+            	if(l==0)
+            		System.out.print("A");
+            	if(l==1)
+            		System.out.print("C");
+            	if(l==2)
+            		System.out.print("G");
+            	if(l==3)
+            		System.out.print("T");
+            	System.out.print("   ");
+            	
+            	
+            	for(int k =0;k<9;k++){
+            		
+            	//	System.out.print(k+1);
+            	//	System.out.println();
+            	
+            		System.out.print(frequencyArray5[l][k]+" ");
+            	
+            		
+        		
+            	}
+            	System.out.println("\n");
+            }
+            
+        	
+    //		System.out.println("Pseudocount Probability Matrix: ");
+    		System.out.println("Position Weight Matrix:");
+            for(int l=0; l<4;l++){
+            	if(l==0)
+            		System.out.print("A");
+            	if(l==1)
+            		System.out.print("C");
+            	if(l==2)
+            		System.out.print("G");
+            	if(l==3)
+            		System.out.print("T");
+            	System.out.print("   ");
+            	
+            	
+            	for(int k =0;k<9;k++){
+            		
+            	//	System.out.print(k+1);
+            	//	System.out.println();
+            		
+            	/*	double val = frequencyArray[l][k]/2796.00;
+            		System.out.println(val);*/
+            		DecimalFormat df = new DecimalFormat("#.###");
+
+            	    df.setRoundingMode(RoundingMode.FLOOR);
+
+            	    double result = new Double(df.format(frequencyArray5[l][k]/300.00));
+            	    probabilityArray5[l][k] = result;
+            	    
+            		/*NumberFormat nf = NumberFormat.getInstance();
+            		nf.setMaximumFractionDigits(2);            
+            		nf.setGroupingUsed(false);
+            		
+            		probabilityArray[l][k] = frequencyArray[l][k]/2796.00;*/
+            	  
+            		System.out.print(probabilityArray5[l][k]+" ");
+       	      		
+            	}
+            	System.out.println("\n");
+            }
+            
+            
+            System.out.println("Background probability distribution:");
+            System.out.println("A: 0.28"); 
+            System.out.println("C: 0.22"); 
+            System.out.println("G: 0.22"); 
+            System.out.println("T: 0.28"); 
+            System.out.println("\n");
+            System.out.println("Temporary Matrix: ");
+                    
+                   
+            
+            for(int i=0;i<4;i++){
+            	
+            	double background_probability;
+				if(i==0||i==3)
+            		 background_probability = 0.28;
+            	else
+            		 background_probability = 0.22; 
+            	
+            	for(int j=0; j<9; j++){
+            		            		
+            		DecimalFormat df = new DecimalFormat("#.###");
+
+            	    df.setRoundingMode(RoundingMode.FLOOR);
+
+            	    double result = new Double(df.format(probabilityArray5[i][j]/background_probability));
+            	    tempArray[i][j] = result;
+            		System.out.print(tempArray[i][j] + " ");
+            		
+            		DecimalFormat df2 = new DecimalFormat("#.###");
+            	    df2.setRoundingMode(RoundingMode.FLOOR);
+            	    double result2 = new Double(df.format(Math.log(tempArray[i][j])/Math.log(2)));
+            		logOddsArray[i][j] = result2;
+            		
+            	            		
+            	}
+            	System.out.println("\n");
+            }
+            
+            System.out.println("Log-odds Matrix: ");
+            for(int i=0; i<4; i++){
+            	
+            	if(i==0)
+            		System.out.print("A");
+            	if(i==1)
+            		System.out.print("C");
+            	if(i==2)
+            		System.out.print("G");
+            	if(i==3)
+            		System.out.print("T");
+            	System.out.print("   ");
+            	
+            	for(int j=0; j<9; j++){
+            		
+            		System.out.print(logOddsArray[i][j] + " ");
+            	}
+            	
+            	System.out.println("\n");
+            	
+            
+            }
+            
+            // Calculating scores for authentic splice sites
+            Scanner scanner2 = new Scanner(ReadFile.class.getResourceAsStream("Authentic_Test.txt"));
+
+    		String s2 = new String();
+    		
+    		double sum = 0; 
+    		double avg;
+    		int auth_tp=0;
+     		int auth_fn;
+     		System.out.println("AUTHENTIC TESTING DATASET SCORES:");
+    		System.out.println("\n");
+    		while(scanner2.hasNextLine()){
+
+
+    		        s2 = scanner2.nextLine();
+    		        char[] cArray = s2.toCharArray();
+    		        double result = 0;
+    		        double score = 0;
+    		        for(int i=0;i<9;i++)
+    		        {
+    		        	int row;
+    		        	if (cArray[i]=='A')
+    		        		row = 0;
+    		        	    		        	
+    		        	else if (cArray[i]=='C')
+    		        		row=1;
+    		        				    		        	
+    		        	else if (cArray[i]=='G')
+    		        		row=2;
+    		        			
+    		        	else
+    		        		row=3;
+    		        	
+    		        	   		        		
+    		        	score += logOddsArray[row][i];
+    		        	DecimalFormat df = new DecimalFormat("#.##");
+                	    df.setRoundingMode(RoundingMode.FLOOR);
+                	    result = new Double(df.format(score));
+    		        		
+    		        	}
+    		       	   		        
+    		        System.out.println(s2 + ": " + result);
+    		        if(result>0)
+    		        	auth_tp++;
+    		        
+    		        sum += result;
+    		}
+    		
+    		avg = sum/300;
+    		System.out.println("\n");
+    		System.out.println(avg);
+    		auth_fn=300-auth_tp;
+    		System.out.println("Authentic True positive:" + auth_tp);
+    		System.out.println("Authentic False Negative:" + auth_fn);
+    		System.out.println("\n");
+    		
+    		  		
+    	//Random Splice Site scores- Authentic
+    		
+    		 Scanner scanner6 = new Scanner(ReadFile.class.getResourceAsStream("Random_300.txt"));
+
+     		String s6 = new String();
+     		
+     		double sum5 = 0; 
+     		double avg5;
+     		int random_auth_fp=0;
+     		int random_auth_tn=0;
+     		
+     		
+     		System.out.println("RANDOM-AUTHENTIC SCORES:");
+     		while(scanner6.hasNextLine()){
+
+
+     		        s6 = scanner6.nextLine();
+     		        char[] cArray5 = s6.toCharArray();
+     		        double result = 0;
+     		        double score = 0;
+     		        
+     		        for(int i=0;i<9;i++)
+     		        {
+     		        	int row;
+     		        	if (cArray5[i]=='A')
+     		        		row = 0;
+     		        	    		        	
+     		        	else if (cArray5[i]=='C')
+     		        		row=1;
+     		        				    		        	
+     		        	else if (cArray5[i]=='G')
+     		        		row=2;
+     		        			
+     		        	else
+     		        		row=3;
+     		        	
+     		        	   		        		
+     		        	score += logOddsArray[row][i];
+     		        	DecimalFormat df = new DecimalFormat("#.##");
+                 	    df.setRoundingMode(RoundingMode.FLOOR);
+                 	    result = new Double(df.format(score));
+     		        		
+     		        	}
+     		       	   		        
+     		        System.out.println(s6 + ": " + result);
+     		        if(result>1.75)
+     		        	random_auth_fp++;
+     		        sum5 += result;
+     		}
+     		
+     		
+     		
+     		// ACCURACY SCORES FOR AUTHENTIC  
+     		
+     		avg5 = sum5/300;
+     		random_auth_tn = 300-random_auth_fp;
+     		System.out.println(avg5);
+     		System.out.println("False positive: " + random_auth_fp);
+     		System.out.println("True negative: " + random_auth_tn);
+     		System.out.println("\n");
+     		double auth_sensitivity = (auth_tp)/300.00;
+     		double auth_specificity = (random_auth_tn)/300.00;
+     		double authentic_accuracy = (auth_tp+ random_auth_tn)/600.00;
+     		System.out.println("\n");
+     		System.out.println("Authentic Sensitivity Score:" + auth_sensitivity);
+     		System.out.println("Authentic Specificity Score:" + auth_specificity);
+     		System.out.println("Authentic Accuracy Score:" + authentic_accuracy);
+     		System.out.println("\n");
+     		
+     //SCORING CRYPTIC IN AUTHENTIC
+     		
+     		Scanner scanner8 = new Scanner(ReadFile.class.getResourceAsStream("Cryptic_Test.txt"));
+
+      		String s8 = new String();
+      		
+      		double sum8 = 0; 
+      		double avg8;
+      		int crypt_in_auth_tp=0;
+      		int crypt_in_auth_fn=0;
+      		System.out.println("\n");
+      		System.out.println("\n");
+      		System.out.println("\n");
+      		System.out.println("\n");
+      		System.out.println("SCORES OF CRYPTIC IN AUTHENTIC:");
+      		while(scanner8.hasNextLine()){
+
+
+      		        s8 = scanner8.nextLine();
+      		        char[] cArray = s8.toCharArray();
+      		        double result = 0;
+      		        double score = 0;
+      		        for(int i=0;i<9;i++)
+      		        {
+      		        	int row;
+      		        	if (cArray[i]=='A')
+      		        		row = 0;
+      		        	    		        	
+      		        	else if (cArray[i]=='C')
+      		        		row=1;
+      		        				    		        	
+      		        	else if (cArray[i]=='G')
+      		        		row=2;
+      		        			
+      		        	else
+      		        		row=3;
+      		        	
+      		        	   		        		
+      		        	score += logOddsArray[row][i];
+      		        	DecimalFormat df = new DecimalFormat("#.##");
+                  	    df.setRoundingMode(RoundingMode.FLOOR);
+                  	    result = new Double(df.format(score));
+      		        		
+      		        	}
+      		       	   		        
+      		        System.out.println(s8 + ": " + result);
+      		        sum8 += result;
+      		        if(result>5.8)
+      		        	crypt_in_auth_tp++;
+      		}
+      		
+      		
+      		//CALCULATING ACCURACY OF CRYPTIC IN AUTHENTIC
+      		
+      		crypt_in_auth_fn = 200-crypt_in_auth_tp;
+      		double crypt_in_auth_sensitivity = crypt_in_auth_tp/200.00;
+      		double crypt_in_auth_accuracy = (crypt_in_auth_tp+random_auth_tn)/500.00;
+      		// double crypt_in_auth_specificity is same as the specificity calculated with random dataset = auth_specificity
+      		avg8 = sum8/200;
+      		System.out.println(avg8);
+      		System.out.println("\n");
+      		System.out.println("Cryptic in Authentic Sensitivity Score:" + crypt_in_auth_sensitivity);
+     		System.out.println("Cryptic in Authentic Specificity Score:" + auth_specificity);
+     		System.out.println("Cryptic in Authentic Accuracy Score:" + crypt_in_auth_accuracy);
+     		System.out.println("\n");
+     		
+     		
+    		
+    		//CRYPTIC SPLICE SITES
+            System.out.println("\n");
+    		System.out.println("Cryptic Splice Sites: ");
+    		for(int i=0; i<4; i++)
+    		{
+    			for(int j=0; j<9; j++){
+    				frequencyArray6[i][j]=0;
+    			}
+    		}
+    		
+    	
+        	System.out.println("Laplace Pseudo-count probability matrix:");
+//        	System.out.println("Test");
+        	Scanner scanner4 = new Scanner(ReadFile.class.getResourceAsStream("Cryptic_Training.txt"));
+
+        		String s4 = new String();
+        		int cryptic_tp=0;
+        		int cryptic_fn=0;
+
+        		while(scanner4.hasNextLine()){
+
+
+        		        s4 = scanner4.nextLine();
+        		   //     System.out.println(s);
+        		        char[] cArray2 = s4.toCharArray();
+        		   //     s4 = "";
+        		        for(int i=0;i<9;i++)
+        		        {
+        		        	int row = 0,j;
+        		        	if (cArray2[i]=='A')
+        		        	        row=0;
+        		        				
+        		        				
+        		        	if (cArray2[i]=='C')
+        		        			row=1;
+        		        			
+        		        	
+        		        	if (cArray2[i]=='G')
+        		        			row=2;
+        		        				
+        		        	if (cArray2[i]=='T')
+        		        		    row=3;
+        		        	
+        		        	frequencyArray6[row][i]++;
+    		        		
+        		        			
+        		        		
+        		        }
+        		   
+            	}
+        				
+        		System.out.println("Pseudocount Frequency Matrix: ");
+        		  
+                for(int l=0; l<4;l++){
+                	if(l==0)
+                		System.out.print("A");
+                	if(l==1)
+                		System.out.print("C");
+                	if(l==2)
+                		System.out.print("G");
+                	if(l==3)
+                		System.out.print("T");
+                	System.out.print("   ");
+                	
+                	
+                	for(int k =0;k<9;k++){
+                		
+                	//	System.out.print(k+1);
+                	//	System.out.println();
+                	
+                		System.out.print(frequencyArray6[l][k]+" ");
+                	
+                		
+            		
+                	}
+                	System.out.println("\n");
+                }
+                
+            	
+        //		System.out.println("Pseudocount Probability Matrix: ");
+        		System.out.println("Position Weight Matrix:");
+                for(int l=0; l<4;l++){
+                	if(l==0)
+                		System.out.print("A");
+                	if(l==1)
+                		System.out.print("C");
+                	if(l==2)
+                		System.out.print("G");
+                	if(l==3)
+                		System.out.print("T");
+                	System.out.print("   ");
+                	
+                	
+                	for(int k =0;k<9;k++){
+                		
+                	//	System.out.print(k+1);
+                	//	System.out.println();
+                		
+                	/*	double val = frequencyArray[l][k]/2796.00;
+                		System.out.println(val);*/
+                		DecimalFormat df = new DecimalFormat("#.###");
+
+                	    df.setRoundingMode(RoundingMode.FLOOR);
+
+                	    double result = new Double(df.format(frequencyArray6[l][k]/200.00));
+                	    probabilityArray6[l][k] = result;
+                	    
+                		/*NumberFormat nf = NumberFormat.getInstance();
+                		nf.setMaximumFractionDigits(2);            
+                		nf.setGroupingUsed(false);
+                		
+                		probabilityArray[l][k] = frequencyArray[l][k]/2796.00;*/
+                	  
+                		System.out.print(probabilityArray6[l][k]+" ");
+           	      		
+                	}
+                	System.out.println("\n");
+                }
+                
+                
+                System.out.println("Background probability distribution:");
+                System.out.println("A: 0.28"); 
+                System.out.println("C: 0.22"); 
+                System.out.println("G: 0.22"); 
+                System.out.println("T: 0.28"); 
+                System.out.println("\n");
+                System.out.println("Temporary Matrix: ");
+                        
+                       
+                
+                for(int i=0;i<4;i++){
+                	
+                	double background_probability;
+    				if(i==0||i==3)
+                		 background_probability = 0.28;
+                	else
+                		 background_probability = 0.22; 
+                	
+                	for(int j=0; j<9; j++){
+                		            		
+                		DecimalFormat df = new DecimalFormat("#.###");
+
+                	    df.setRoundingMode(RoundingMode.FLOOR);
+
+                	    double result = new Double(df.format(probabilityArray6[i][j]/background_probability));
+                	    tempArray2[i][j] = result;
+                		System.out.print(tempArray2[i][j] + " ");
+                		
+                		DecimalFormat df2 = new DecimalFormat("#.###");
+                	    df2.setRoundingMode(RoundingMode.FLOOR);
+                	    double result2 = new Double(df.format(Math.log(tempArray2[i][j])/Math.log(2)));
+                		logOddsArray2[i][j] = result2;
+                		
+                	            		
+                	}
+                	System.out.println("\n");
+                }
+                
+                System.out.println("Log-odds Matrix: ");
+                for(int i=0; i<4; i++){
+                	
+                	if(i==0)
+                		System.out.print("A");
+                	if(i==1)
+                		System.out.print("C");
+                	if(i==2)
+                		System.out.print("G");
+                	if(i==3)
+                		System.out.print("T");
+                	System.out.print("   ");
+                	
+                	for(int j=0; j<9; j++){
+                		
+                		System.out.print(logOddsArray2[i][j] + " ");
+                	}
+                	
+                	System.out.println("\n");
+                	
+                
+                }
+                
+                
+                Scanner scanner5 = new Scanner(ReadFile.class.getResourceAsStream("Cryptic_Test.txt"));
+
+        		String s5 = new String();
+        		sum = 0;
+        		System.out.println("CRYPTIC TESTING DATASET SCORES:");
+        		System.out.println("\n");
+        		while(scanner5.hasNextLine()){
+
+
+        		        s5 = scanner5.nextLine();
+        		        char[] cArray = s5.toCharArray();
+        		        double result = 0;
+        		        double score = 0;
+        		        
+        		        for(int i=0;i<9;i++)
+        		        {
+        		        	int row;
+        		        	if (cArray[i]=='A')
+        		        		row = 0;
+        		        	    		        	
+        		        	else if (cArray[i]=='C')
+        		        		row=1;
+        		        				    		        	
+        		        	else if (cArray[i]=='G')
+        		        		row=2;
+        		        			
+        		        	else
+        		        		row=3;
+        		        	
+        		        	   		        		
+        		        	score += logOddsArray2[row][i];
+        		        	DecimalFormat df = new DecimalFormat("#.##");
+                    	    df.setRoundingMode(RoundingMode.FLOOR);
+                    	    result = new Double(df.format(score));
+                    	 
+        		        		
+        		        	}
+        		       	   		        
+        		        System.out.println(s5 + ": " + result);
+        		        sum += result;
+        		        
+        		        //ACCURACY SCORES FOR CRYPTIC
+        		        
+        		        if(result>1.3)
+        		        	cryptic_tp++;
+        		      
+        		}
+        		
+        		cryptic_fn=200-cryptic_tp; 
+        		avg = sum/200;
+        		System.out.println(avg);
+        		System.out.println("\n");
+        		System.out.println("Cryptic True positive:" + cryptic_tp);
+        		System.out.println("Cryptic False negative:" + cryptic_fn);
+        		System.out.println("\n");
+        		
+        		// TESTING RANDOM SPLICE SITES - Cryptic 
+        		
+        		 Scanner scanner7 = new Scanner(ReadFile.class.getResourceAsStream("Random_300.txt"));
+
+         		String s7 = new String();
+         		sum = 0;
+         		int random_cryptic_fp=0;
+         		int random_cryptic_tn=0;
+         		System.out.println("Random Splice Sites- Cryptic Scores \n");
+         		while(scanner7.hasNextLine()){
+
+
+         		        s7 = scanner7.nextLine();
+         		        char[] cArray = s7.toCharArray();
+         		        double result = 0;
+         		        double score = 0;
+         		        
+         		        for(int i=0;i<9;i++)
+         		        {
+         		        	int row;
+         		        	if (cArray[i]=='A')
+         		        		row = 0;
+         		        	    		        	
+         		        	else if (cArray[i]=='C')
+         		        		row=1;
+         		        				    		        	
+         		        	else if (cArray[i]=='G')
+         		        		row=2;
+         		        			
+         		        	else
+         		        		row=3;
+         		        	
+         		        	   		        		
+         		        	score += logOddsArray2[row][i];
+         		        	DecimalFormat df = new DecimalFormat("#.##");
+                     	    df.setRoundingMode(RoundingMode.FLOOR);
+                     	    result = new Double(df.format(score));
+                     	 
+         		        		
+         		        	}
+         		       	   		        
+         		        System.out.println(s7 + ": " + result);
+         		        sum += result;
+         		        if(result>1.3)
+         		        	random_cryptic_fp++;
+         		        
+         		      
+         		}
+         		
+         		random_cryptic_tn=300-random_cryptic_fp; 
+         		double sensitivity_cryptic = (cryptic_tp)/200.00;
+         		double specificity_cryptic = (random_cryptic_tn)/300.00;
+         		double cryptic_accuracy = (cryptic_tp + random_cryptic_tn)/500.00;
+         		avg = sum/300;
+         		System.out.println(avg);
+         		System.out.println("Cryptic False Positive:" + random_cryptic_fp);
+         		System.out.println("Cryptic True Negative:" + random_cryptic_tn);
+         		System.out.println("Cryptic Sensitivity Score:" + sensitivity_cryptic);
+         		System.out.println("Cryptic Specificity Score:" + specificity_cryptic);
+         		System.out.println("Cryptic Accuracy Score:" + cryptic_accuracy);
+         		
+         	// TESTING AUTHENTIC IN CRYPTIC
+         		 Scanner scanner9 = new Scanner(ReadFile.class.getResourceAsStream("Authentic_Test.txt"));
+
+          		String s9 = new String();
+          		sum = 0;
+          		int auth_in_cryptic_tp=0;
+          		int auth_in_cryptic_fn=0;
+          		System.out.println("\n");
+          		System.out.println("\n");
+          		System.out.println("SCORES OF AUTHENTIC IN CRYPTIC \n");
+          		while(scanner9.hasNextLine()){
+
+
+          		        s9 = scanner9.nextLine();
+          		        char[] cArray = s9.toCharArray();
+          		        double result = 0;
+          		        double score = 0;
+          		        
+          		        for(int i=0;i<9;i++)
+          		        {
+          		        	int row;
+          		        	if (cArray[i]=='A')
+          		        		row = 0;
+          		        	    		        	
+          		        	else if (cArray[i]=='C')
+          		        		row=1;
+          		        				    		        	
+          		        	else if (cArray[i]=='G')
+          		        		row=2;
+          		        			
+          		        	else
+          		        		row=3;
+          		        	
+          		        	   		        		
+          		        	score += logOddsArray2[row][i];
+          		        	DecimalFormat df = new DecimalFormat("#.##");
+                      	    df.setRoundingMode(RoundingMode.FLOOR);
+                      	    result = new Double(df.format(score));
+                      	 
+          		        		
+          		        	}
+          		       	   		        
+          		        System.out.println(s9 + ": " + result);
+          		        sum += result;
+          		        if(result>1.5 && result<5.8)
+          		        	auth_in_cryptic_tp++;
+          		      
+          		}
+          		
+          		//CALCULATING ACCURACY OF AUTHENTIC IN CRYPTIC
+          		avg = sum/300;
+          		System.out.println(avg);	
+          		auth_in_cryptic_fn = 300-auth_in_cryptic_tp++;
+          		         	
+          		double auth_in_cryptic_sensitivity = auth_in_cryptic_tp/300.00;
+          		double auth_in_cryptic_accuracy = (auth_in_cryptic_tp+random_cryptic_tn)/600.00;
+          		// double auth_in_crypt_specificity is same as the specificity calculated with random dataset = specificity_cryptic
+          		avg8 = sum8/200;
+          		System.out.println(avg8);
+          		System.out.println("\n");
+          		System.out.println("Authentic in Cryptic Sensitivity Score:" + auth_in_cryptic_sensitivity);
+         		System.out.println("Authentic in Cryptic Specificity Score:" + specificity_cryptic);
+         		System.out.println("Authentic in Cryptic Accuracy Score:" + auth_in_cryptic_accuracy);
+         		System.out.println("\n");
+         		
+			
+	}
+	
+	
+     
+}
+            	  
+          
+	
+
