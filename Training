@@ -1,0 +1,339 @@
+package hmm;
+
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.util.Scanner;
+
+public class HmmTraining {
+
+	
+	// HMM Parameters
+	
+		static int numStates = 18;				//N--> number of states = 18
+		static int sigmaSize = 4;				//M--> number of observation symbols = 4 {A,C,G,T}
+		static int T =9;						//T--> length of the observation sequence
+		static int column=0;
+		
+		private static double[][] emissionProb =  new double[numStates][sigmaSize];			//B matrix
+		private static double[][] transitionProb = new double[numStates][numStates];		//A matrix
+		private static double[] initialProb = new double[numStates];						//Pi Matrix
+
+		static int [][] frequencyArrayAuthentic = new int[T][sigmaSize];
+		static int [][] frequencyArrayRandom = new int[T][sigmaSize];
+		
+		private static double[] forward_probabilities = new double[1679];
+		private static double[] backward_probabilities = new double[1679];
+		
+		static char[][] cArray = new char [1679][9];
+		static char[] cArrayTemp = new char [9];
+		static int [] rows = new int[9];
+			
+		
+		static double[][] alphaValues = new double[numStates][T];
+		static double[][] betaValues = new double[numStates][T];
+	
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+		
+		//Setting up cArray
+		Scanner scanner = new Scanner(HMMSequences.class.getResourceAsStream("Authentic_Training.txt"));
+		for(int j=0; j < 479; j++){
+		String s = new String();
+			
+			 s= scanner.nextLine();
+			 cArrayTemp= s.toCharArray();
+			 
+			
+			 //Storing each split sequence into cArray 2D sequence 
+			  for(int temp=0; temp<9; temp++){
+				 cArray[j][temp] = cArrayTemp[temp];
+			  }
+			
+		
+		}
+		
+		
+		Scanner scanner1 = new Scanner(HMMSequences.class.getResourceAsStream("Random_300.txt"));
+		for(int j=479; j < 1679; j++){
+		
+		String s1 = new String();
+		
+			 s1 = scanner1.nextLine();
+			   //   System.out.println(s);
+			 	cArrayTemp= s1.toCharArray();
+			 	 //Storing each split sequence into cArray 2D sequence 
+				  for(int temp=0; temp<9; temp++){
+					 cArray[j][temp] = cArrayTemp[temp];
+				  }
+			
+		}
+		
+		
+		setMatrixValues();
+		
+		/* Calculating the Probabilities using the ComputeAlpha 
+		function with Initial A, B and Pi values */
+		
+		//Rows are updated for each sequence. Probabilities then calculated for each sequence.
+		
+		for(int j=0; j < 1679; j++){
+			
+			for(int i=0;i<9;i++)
+			{
+	    	
+	    	if (cArray[j][i]=='A')
+	    		
+	    				rows[i]=0;
+	    	       	
+	    	else if (cArray[j][i]=='C')
+	    		
+	    				rows[i]=1;
+	    		
+	    	else if (cArray[j][i]=='G')
+	    		
+	    				rows[i]=2;
+	    			
+	    	
+	    	else if(cArray[j][i]=='T')
+	    		
+	    				rows[i]=3;
+	   	
+				
+			}
+			
+			System.out.println(); 
+			double prob = getProbability(rows);
+			System.out.println("Prob " + j + ": " + prob);
+		
+		}
+		
+		
+	
+	}	
+	
+	public static void setMatrixValues(){
+		
+		//Initializing Transition probability matrix
+		for(int i=0; i<numStates; i++){
+			
+			for(int j=0; j<numStates; j++){
+				
+				if(j==i+1 && j!=9){
+					transitionProb[i][j]=0.99;
+				}
+				else if(j==i+10 || j==i-8){
+					transitionProb[i][j]=0.01;
+					
+				}
+				else if(i==8 || i ==17)
+					transitionProb[i][j]=0.055;
+				else
+				{
+					transitionProb[i][j]=0.00;
+				}
+			}
+		}
+		
+		
+		//Initializing Emission probability matrix
+		
+		for(int j=0; j < 479; j++){
+	
+			   for(int i=0;i<9;i++){
+			         
+			             
+			        if (cArray[j][i]=='A')
+			        		
+			        				column=0;
+			        	       	
+			        	if (cArray[j][i]=='C')
+			        		
+			        				column=1;
+			        		
+			        	if (cArray[j][i]=='G')
+			        		
+			        				column=2;
+			        			
+			        	
+			        	if (cArray[j][i]=='T')
+			        		
+			        				column=3;
+			        		
+			        	frequencyArrayAuthentic[i][column]++;
+			   		}	    	      
+			        		
+			      }
+			
+				
+			        for(int l=0; l < 9; l++){
+			        /*	if(l==0)
+			        		System.out.print("A");
+			        	if(l==1)
+			        		System.out.print("C");
+			        	if(l==2)
+			        		System.out.print("G");
+			        	if(l==3)
+			        		System.out.print("T");
+			        	System.out.print("   ");
+			        	*/
+			        	
+			        	for(int k =0;k<sigmaSize;k++){
+			        
+			        		DecimalFormat df = new DecimalFormat("#.###");
+
+			        	    df.setRoundingMode(RoundingMode.FLOOR);
+
+			        	    double result = new Double(df.format(frequencyArrayAuthentic[l][k]/475.00));
+			        	    emissionProb[l][k] = result;
+			        	    
+			        	}
+			   
+	    	}
+		
+		
+		// Initializing Emission probability matrix with random splice site states
+		
+		
+		for(int j=479; j < 1679; j++){
+			        for(int i=0;i<9;i++)
+			        {
+			        	int column= 0;
+			        	if (cArray[j][i]=='A')
+			        		
+			        				column=0;
+			        	       	
+			        	if (cArray[j][i]=='C')
+			        		
+			        				column=1;
+			        		
+			        	if (cArray[j][i]=='G')
+			        		
+			        				column=2;
+			        			
+			        	
+			        	if (cArray[j][i]=='T')
+			        		
+			        				column=3;
+			        		
+			        	frequencyArrayRandom[i][column]++;
+		        		    	      
+			        		
+			        }
+			        
+		}
+			        
+			        for(int l=9; l < 18;l++){
+			      
+			        	for(int k =0; k < sigmaSize; k++){
+			        
+			        		DecimalFormat df = new DecimalFormat("#.###");
+
+			        	    df.setRoundingMode(RoundingMode.FLOOR);
+
+			        	    double result = new Double(df.format(frequencyArrayRandom[l-9][k]/1200.00));
+			        	    
+			        	 
+			        	    emissionProb[l][k] = result;
+			        	    
+			        	}
+			        	
+			   
+	    	}
+		
+		
+		//Initializing Initial Probability Matrix
+		
+		for(int i=0; i<18; i++){
+			if(i==0)
+				initialProb[i]=0.3;
+			else if(i==9)
+				initialProb[i]=0.7;
+			else
+				initialProb[i]=0.0;
+		}
+		
+	
+		//Printing A, B , Pi Matrix values
+		
+		System.out.println("Transition Probability Matrix:");
+	
+		for(int i=0; i<18; i++){
+			
+			for(int j=0; j<18; j++){
+				
+				System.out.print(transitionProb[i][j]);
+				System.out.print(" ");
+				
+			}
+			
+			System.out.println();
+		}
+		
+		System.out.println();
+		System.out.println("Emission Probability Matrix:");
+		
+		for(int l=0; l<18;l++){
+				        	
+	        	for(int k =0;k < 4;k++){
+	        	        		
+	        	 System.out.print(emissionProb[l][k]);
+	        	 System.out.print(" ");
+	        	}
+	        	System.out.println("");
+	        	    
+		}
+		
+		
+
+		System.out.println();
+		System.out.println("Initial Probability Matrix:");
+		for(int k =0;k<18;k++){
+    		
+       	 System.out.print(initialProb[k]);
+       	 System.out.print(" ");
+       	}
+       	System.out.println("\n");
+		
+	}
+	
+	
+	public static double[][] computeAlpha(int[] rows)
+	{
+		
+		//Initialization step
+		for(int i=0; i < numStates; i++){
+					alphaValues[i][0]=initialProb[i]*emissionProb[i][rows[0]];
+		}
+		
+		//Induction step
+		for(int t=0; t<=T-2; t++) {
+			for (int j = 0; j < numStates; j++) {
+				alphaValues[j][t+1] = 0;
+				for (int i = 0; i < numStates; i++)
+					alphaValues[j][t+1] += (alphaValues[i][t] * transitionProb[i][j]);
+				alphaValues[j][t+1] *= emissionProb[j][rows[t+1]];
+			}
+		}
+		
+		return alphaValues;
+	}
+
+
+	 public static double getProbability(int[] rows) { 
+		  double prob = 0.0; 
+		  double[][] forward_probabilities = computeAlpha(rows); 
+		  // add probabilities 
+		  for (int i = 0; i < numStates; i++) { // for every state 
+			   prob += forward_probabilities[i][T - 1]; 
+		  } 
+		  return prob; 
+		 } 
+	
+	
+	
+	
+
+
+}
